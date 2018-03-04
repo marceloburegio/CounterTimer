@@ -1,0 +1,71 @@
+
+ROM used: 662 (32%)
+          662 (32%) including unused fragments
+
+          1 Average locations per line
+          4 Average locations per statement
+
+RAM used: 25 (11%) at main() level
+          33 (15%) worst case
+
+Stack used: 5 worst case (out of 7 total available)
+
+Lines Stmts  %   Files
+----- ----- ---  -----
+   53    16   9  main.c
+  208     0   0  C:\Arquivos de programas\PICC\devices\16F628A.h
+  169    57  31  display_led.c
+  114    43  23  timer_1sec.c
+   63    15   8  mem_eeprom.c
+  145    55  30  controlador.c
+----- -----
+  752   186 Total
+
+Page ROM  %  RAM   Vol Diff  Functions:
+---- --- --- ---   --- ----  ----------
+0      3   0   0    33  1.3  disp_turn_on
+0      3   0   0    33  1.3  disp_turn_off
+0     13   2   2   151  3.3  disp_output
+0     12   2   0   113  1.7  disp_init
+0     15   2   0             @const64
+0     34   5   1   530  4.3  disp_refresh
+0     33   5   2   313  5.3  disp_delay_10ms
+0     20   3   1   185  3.6  disp_banner
+0     34   5   3   231  4.2  disp_time
+0     21   3   3             @DIV88
+0     10   2   2    96  1.7  timer_set_min_remains
+0     24   4   0   204  3.1  timer_display
+0     12   2   0    78  1.6  timer_init
+0     61   9   2   477  5.4  timer_int_timer1
+ Inline        1   102  2.5  mem_load_min_credits
+ Inline        0    25  1.2  mem_save_min_credits
+ Inline        0    86  2.5  mem_load_min_remains
+0     31   5   0    72  2.7  mem_save_min_remains
+0     30   5   0    24  0.6  mem_init
+0      5   1   0    32  1.0  bt_init
+0     25   4   1   304  5.5  bt_start
+0     12   2   0   165  3.5  bt_setup
+0    168  25   2  1036  9.7  setup
+ Inline        2             @MUL88
+0     43   6   0   257  3.6  MAIN
+
+Program metrics:
+    Functions               22
+    Statements              186
+    Comments                234
+    Volume (V)              8131
+    Difficilty (D)          70.9
+    Effort to implement (E) 576264
+    Time to implement (T)   8 hours, 54 minutes
+    Est Delivered Bugs (B)  2
+    Cyclomatic Complexity   33
+    Maintainability (MI)    58
+
+ Segment     Used  Free
+-----------  ----  ----
+00000-00003     4  0  
+00004-00034    49  0  
+00035-007FF   609  1386  
+
+
+

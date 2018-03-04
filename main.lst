@@ -1,0 +1,1186 @@
+CCS PCM C Compiler, Version 4.068, 57992               08-out-08 00:26
+
+               Filename: d:\projetos_ccs\timer\main.lst
+
+               ROM used: 662 words (32%)
+                         Largest free fragment is 1386
+               RAM used: 25 (11%) at main() level
+                         33 (15%) worst case
+               Stack:    5 worst case (4 in main + 1 for interrupts)
+
+*
+0000:  MOVLW  00
+0001:  MOVWF  0A
+0002:  GOTO   26B
+0003:  NOP
+0004:  MOVWF  7F
+0005:  SWAPF  03,W
+0006:  CLRF   03
+0007:  MOVWF  21
+0008:  MOVF   7F,W
+0009:  MOVWF  20
+000A:  MOVF   0A,W
+000B:  MOVWF  28
+000C:  CLRF   0A
+000D:  SWAPF  20,F
+000E:  MOVF   04,W
+000F:  MOVWF  22
+0010:  MOVF   77,W
+0011:  MOVWF  23
+0012:  MOVF   78,W
+0013:  MOVWF  24
+0014:  MOVF   79,W
+0015:  MOVWF  25
+0016:  MOVF   7A,W
+0017:  MOVWF  26
+0018:  MOVF   7B,W
+0019:  MOVWF  27
+001A:  BCF    03.7
+001B:  BCF    03.5
+001C:  MOVLW  8C
+001D:  MOVWF  04
+001E:  BTFSS  00.0
+001F:  GOTO   022
+0020:  BTFSC  0C.0
+0021:  GOTO   044
+0022:  MOVF   22,W
+0023:  MOVWF  04
+0024:  MOVF   23,W
+0025:  MOVWF  77
+0026:  MOVF   24,W
+0027:  MOVWF  78
+0028:  MOVF   25,W
+0029:  MOVWF  79
+002A:  MOVF   26,W
+002B:  MOVWF  7A
+002C:  MOVF   27,W
+002D:  MOVWF  7B
+002E:  MOVF   28,W
+002F:  MOVWF  0A
+0030:  SWAPF  21,W
+0031:  MOVWF  03
+0032:  SWAPF  7F,F
+0033:  SWAPF  7F,W
+0034:  RETFIE
+.................... #include <16F628A.h> 
+.................... //////// Standard Header file for the PIC16F628A device //////////////// 
+.................... #device PIC16F628A 
+.................... #list 
+....................  
+.................... #FUSES NOWDT, INTRC_IO, PUT, NOPROTECT, NOBROWNOUT, MCLR, NOLVP, NOCPD 
+.................... #USE delay(clock=4000000) 
+....................  
+.................... #use fast_io(A) 
+.................... #use fast_io(B) 
+....................  
+.................... // Includes 
+.................... #include "display_led.c" 
+.................... /** 
+....................  *  Configurações / Parametrizações 
+....................  */ 
+.................... #DEFINE DISP1_PIN    PIN_A0 
+.................... #DEFINE DISP2_PIN    PIN_A1 
+....................  
+.................... /** 
+....................  * Variáveis Globais 
+....................  */ 
+.................... boolean flag_disp1 = false, flag_disp2 = false; 
+*
+0274:  BCF    29.0
+0275:  BCF    29.1
+.................... int disp1_byte = 0, disp2_byte = 0; 
+0276:  CLRF   2A
+0277:  CLRF   2B
+....................  
+....................  
+.................... /** 
+....................  * Função que habilita o display 
+....................  */ 
+.................... void disp_turn_on() { 
+....................    flag_disp1 = true; 
+*
+008E:  BSF    29.0
+....................    flag_disp2 = true; 
+008F:  BSF    29.1
+.................... } 
+0090:  RETLW  00
+....................  
+....................  
+.................... /** 
+....................  * Função que desabilita o display 
+....................  */ 
+.................... void disp_turn_off() { 
+....................    flag_disp1 = false; 
+*
+0119:  BCF    29.0
+....................    flag_disp2 = false; 
+011A:  BCF    29.1
+.................... } 
+011B:  RETLW  00
+....................  
+....................  
+.................... /** 
+....................  * Exibindo o numero passado por parametro no display 
+....................  */ 
+.................... void disp_output(int uni, int dez) { 
+....................     
+....................    // Restringindo o valor máximo 
+....................    if (uni > 10) uni = 0; 
+*
+0081:  MOVF   36,W
+0082:  SUBLW  0A
+0083:  BTFSS  03.0
+0084:  CLRF   36
+....................    if (dez > 10) dez = 0; 
+0085:  MOVF   37,W
+0086:  SUBLW  0A
+0087:  BTFSS  03.0
+0088:  CLRF   37
+....................     
+....................    // Exibindo no display 
+....................    disp1_byte = uni; 
+0089:  MOVF   36,W
+008A:  MOVWF  2A
+....................    disp2_byte = dez; 
+008B:  MOVF   37,W
+008C:  MOVWF  2B
+.................... } 
+008D:  RETLW  00
+....................  
+....................  
+.................... /** 
+....................  * Função que inicializa as configurações do display de 7 segmentos 
+....................  */ 
+.................... void disp_init() { 
+....................     
+....................    // Setando Nivel "ZERO" nos transistores 
+....................    output_low(DISP1_PIN); 
+*
+0091:  BCF    05.0
+....................    output_low(DISP2_PIN); 
+0092:  BCF    05.1
+....................     
+....................    // Configurando e Inicializando a Porta B 
+....................    set_tris_b(0x00); 
+0093:  MOVLW  00
+0094:  TRIS   6
+....................    output_b(0x00); 
+0095:  CLRF   06
+....................     
+....................    // Inicializando os bytes 
+....................    disp_output(disp1_byte, disp2_byte); 
+0096:  MOVF   2A,W
+0097:  MOVWF  36
+0098:  MOVF   2B,W
+0099:  MOVWF  37
+009A:  CALL   081
+....................     
+....................    // Ativando os displays 
+....................    disp_turn_on(); 
+009B:  CALL   08E
+.................... } 
+009C:  GOTO   285 (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Atualizando os valores no display de 7 segmentos 
+....................  */ 
+.................... void disp_refresh() { 
+....................    static boolean flag_disp = false; 
+*
+0278:  BCF    29.2
+....................    const byte led_map[] = { 
+....................       0b11101110, // 0 
+....................       0b00101000, // 1 
+....................       0b11001101, // 2 
+....................       0b01101101, // 3 
+....................       0b00101011, // 4 
+....................       0b01100111, // 5 
+....................       0b11100111, // 6 
+....................       0b00101100, // 7 
+....................       0b11101111, // 8 
+....................       0b01101111, // 9 
+....................       0b10101011  // H 
+....................    }; 
+....................     
+....................    // Unidades 
+....................    if (flag_disp) { 
+*
+00D6:  BTFSS  29.2
+00D7:  GOTO   0E7
+....................       output_low(DISP2_PIN); 
+00D8:  BCF    05.1
+....................       if (flag_disp1) { 
+00D9:  BTFSS  29.0
+00DA:  GOTO   0E1
+....................          output_b( led_map[ disp1_byte ] ); 
+00DB:  MOVF   2A,W
+00DC:  CALL   035
+00DD:  MOVWF  36
+00DE:  MOVWF  06
+....................          output_high(DISP1_PIN); 
+00DF:  BSF    05.0
+....................       } 
+....................       else delay_cycles(12); 
+00E0:  GOTO   0E6
+00E1:  MOVLW  03
+00E2:  MOVWF  77
+00E3:  DECFSZ 77,F
+00E4:  GOTO   0E3
+00E5:  GOTO   0E6
+....................    } 
+....................    // Dezenas 
+....................    else { 
+00E6:  GOTO   0F5
+....................       output_low(DISP1_PIN); 
+00E7:  BCF    05.0
+....................       if (flag_disp2) { 
+00E8:  BTFSS  29.1
+00E9:  GOTO   0F0
+....................          output_b( led_map[ disp2_byte ] ); 
+00EA:  MOVF   2B,W
+00EB:  CALL   035
+00EC:  MOVWF  36
+00ED:  MOVWF  06
+....................          output_high(DISP2_PIN); 
+00EE:  BSF    05.1
+....................       } 
+....................       else delay_cycles(12); 
+00EF:  GOTO   0F5
+00F0:  MOVLW  03
+00F1:  MOVWF  77
+00F2:  DECFSZ 77,F
+00F3:  GOTO   0F2
+00F4:  GOTO   0F5
+....................    } 
+....................    flag_disp = !flag_disp; 
+00F5:  MOVLW  04
+00F6:  XORWF  29,F
+.................... } 
+00F7:  RETLW  00
+....................  
+....................  
+.................... /** 
+....................  * Função que realiza um delay de 10ms x um fator exibindo no display o resultado 
+....................  * Delay total: 10ms / 10.000us / 100fps x factor 
+....................  */ 
+.................... void disp_delay_10ms(signed int factor) { 
+....................    int i; 
+....................     
+....................    do { 
+....................       // Atualizando ambos os displays 
+....................       disp_refresh();                              // Delay: 23us/ciclos (Ciclos) 
+00F8:  CALL   0D6
+....................       for (i = 0; i < 20; i++) delay_cycles(250);  // Delay: 5.000us/ciclos ~ 5ms 
+00F9:  CLRF   35
+00FA:  MOVF   35,W
+00FB:  SUBLW  13
+00FC:  BTFSS  03.0
+00FD:  GOTO   104
+00FE:  MOVLW  53
+00FF:  MOVWF  77
+0100:  DECFSZ 77,F
+0101:  GOTO   100
+0102:  INCF   35,F
+0103:  GOTO   0FA
+....................        
+....................       disp_refresh();                              // Delay: 23us/ciclos (Ciclos) 
+0104:  CALL   0D6
+....................       for (i = 0; i < 20; i++) delay_cycles(250);  // Delay: 5.000us/ciclos ~ 5ms 
+0105:  CLRF   35
+0106:  MOVF   35,W
+0107:  SUBLW  13
+0108:  BTFSS  03.0
+0109:  GOTO   110
+010A:  MOVLW  53
+010B:  MOVWF  77
+010C:  DECFSZ 77,F
+010D:  GOTO   10C
+010E:  INCF   35,F
+010F:  GOTO   106
+....................        
+....................       // Decrementando o factor 
+....................       factor--; 
+0110:  DECF   34,F
+....................    } while (factor > 0); 
+0111:  BTFSC  34.7
+0112:  GOTO   117
+0113:  MOVF   34,W
+0114:  SUBLW  00
+0115:  BTFSS  03.0
+0116:  GOTO   0F8
+....................     
+....................    // Atualizando o display 
+....................    disp_refresh(); 
+0117:  CALL   0D6
+.................... } 
+0118:  RETLW  00
+....................  
+....................  
+.................... /** 
+....................  * Função que exibe um banner no display 
+....................  */ 
+.................... void disp_banner() { 
+....................    signed int i; 
+....................    for (i = 9; i >= 0; i--) { 
+*
+011C:  MOVLW  09
+011D:  MOVWF  33
+011E:  BTFSC  33.7
+011F:  GOTO   12A
+....................       disp_output(i, i); 
+0120:  MOVF   33,W
+0121:  MOVWF  36
+0122:  MOVF   33,W
+0123:  MOVWF  37
+0124:  CALL   081
+....................       disp_delay_10ms(15); 
+0125:  MOVLW  0F
+0126:  MOVWF  34
+0127:  CALL   0F8
+....................    } 
+0128:  DECF   33,F
+0129:  GOTO   11E
+....................    // Efeito final onde o display pisca o número "00" 
+....................    disp_turn_off(); 
+012A:  CALL   119
+....................    disp_delay_10ms(30); 
+012B:  MOVLW  1E
+012C:  MOVWF  34
+012D:  CALL   0F8
+....................    disp_turn_on(); 
+012E:  CALL   08E
+.................... } 
+012F:  GOTO   28B (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Exibindo o tempo passado por parametro no display 
+....................  */ 
+.................... void disp_time(int min) { 
+....................    int uni, dez; 
+....................     
+....................    // Exibindo apenas minutos/segundos 
+....................    if (min < 60) { 
+*
+0212:  MOVF   33,W
+0213:  SUBLW  3B
+0214:  BTFSS  03.0
+0215:  GOTO   225
+....................       dez = min / 10; 
+0216:  MOVF   33,W
+0217:  MOVWF  36
+0218:  MOVLW  0A
+0219:  MOVWF  37
+021A:  CALL   155
+021B:  MOVF   78,W
+021C:  MOVWF  35
+....................       uni = min % 10; 
+021D:  MOVF   33,W
+021E:  MOVWF  36
+021F:  MOVLW  0A
+0220:  MOVWF  37
+0221:  CALL   155
+0222:  MOVF   77,W
+0223:  MOVWF  34
+....................    } 
+....................    // Exibindo apenas horas 
+....................    else { 
+0224:  GOTO   22E
+....................       dez = min / 60; 
+0225:  MOVF   33,W
+0226:  MOVWF  36
+0227:  MOVLW  3C
+0228:  MOVWF  37
+0229:  CALL   155
+022A:  MOVF   78,W
+022B:  MOVWF  35
+....................       uni = 0x0A; 
+022C:  MOVLW  0A
+022D:  MOVWF  34
+....................    } 
+....................     
+....................    // Exibindo no display 
+....................    disp_output(uni, dez); 
+022E:  MOVF   34,W
+022F:  MOVWF  36
+0230:  MOVF   35,W
+0231:  MOVWF  37
+0232:  CALL   081
+.................... } 
+0233:  RETLW  00
+....................  
+.................... #include "timer_1sec.c" 
+.................... /** 
+....................  *  Configurações / Parametrizações 
+....................  */ 
+.................... #DEFINE LED_SECS_PIN  PIN_A7 
+.................... #DEFINE BUZZER_PIN    PIN_A2 
+.................... #DEFINE RELE_PIN      PIN_A6 
+....................  
+.................... /** 
+....................  * Variáveis Globais 
+....................  */ 
+.................... boolean flag_timer_1sec = false, flag_timer_start = false; 
+*
+0279:  BCF    29.3
+027A:  BCF    29.4
+.................... int min_remains = 0, sec_remains = 0, min_credits = 0; 
+027B:  CLRF   2C
+027C:  CLRF   2D
+027D:  CLRF   2E
+....................  
+....................  
+.................... /** 
+....................  * Função que define o tempo em minutos sem as interrupções do TIMER1 
+....................  */ 
+.................... void timer_set_min_remains(int min) { 
+....................    boolean flag_temp; 
+....................     
+....................    // Desativando a contagem do tempo 
+....................    flag_temp = flag_timer_start; 
+*
+00A9:  BCF    35.0
+00AA:  BTFSC  29.4
+00AB:  BSF    35.0
+....................    flag_timer_start = false; 
+00AC:  BCF    29.4
+....................     
+....................    // Definindo os minutos 
+....................    min_remains = min; 
+00AD:  MOVF   34,W
+00AE:  MOVWF  2C
+....................     
+....................    // Habilitando a contagem do tempo 
+....................    flag_timer_start = flag_temp; 
+00AF:  BCF    29.4
+00B0:  BTFSC  35.0
+00B1:  BSF    29.4
+.................... } 
+00B2:  RETLW  00
+....................  
+....................  
+.................... /** 
+....................  * Função que envia ao display o tempo restante atual para ser exibido 
+....................  */ 
+.................... void timer_display() { 
+....................    // Exibindo os segundos 
+....................    if (min_remains == 0) { 
+*
+0234:  MOVF   2C,F
+0235:  BTFSS  03.2
+0236:  GOTO   247
+....................       // Habilitando o display 
+....................       if (sec_remains == 0) { 
+0237:  MOVF   2D,F
+0238:  BTFSS  03.2
+0239:  GOTO   23D
+....................          disp_turn_on(); 
+023A:  CALL   08E
+....................          flag_timer_start = false; 
+023B:  BCF    29.4
+....................       } 
+....................       // Mostrando os segundos piscando 
+....................       else { 
+023C:  GOTO   243
+....................          flag_disp1 = flag_timer_1sec; 
+023D:  BCF    29.0
+023E:  BTFSC  29.3
+023F:  BSF    29.0
+....................          flag_disp2 = flag_disp1; 
+0240:  BCF    29.1
+0241:  BTFSC  29.0
+0242:  BSF    29.1
+....................       } 
+....................       disp_time(sec_remains); 
+0243:  MOVF   2D,W
+0244:  MOVWF  33
+0245:  CALL   212
+....................    } 
+....................    // Exibindo os minutos/horas 
+....................    else { 
+0246:  GOTO   24B
+....................       // Habilitando o display 
+....................       disp_turn_on(); 
+0247:  CALL   08E
+....................       disp_time(min_remains); 
+0248:  MOVF   2C,W
+0249:  MOVWF  33
+024A:  CALL   212
+....................    } 
+.................... } 
+024B:  GOTO   292 (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Função que inicializa o TIMER1 para contabilizar 500ms 
+....................  */ 
+.................... void timer_init() { 
+....................    // Configurando a porta A 
+....................    set_tris_a(0x18); 
+*
+009D:  MOVLW  18
+009E:  TRIS   5
+....................     
+....................    setup_timer_1(T1_INTERNAL|T1_DIV_BY_8); 
+009F:  MOVLW  B5
+00A0:  MOVWF  10
+....................    set_timer1(0x0BDB); 
+00A1:  MOVLW  0B
+00A2:  MOVWF  0F
+00A3:  MOVLW  DB
+00A4:  MOVWF  0E
+....................    enable_interrupts(INT_TIMER1); 
+00A5:  BSF    03.5
+00A6:  BSF    0C.0
+.................... } 
+00A7:  BCF    03.5
+00A8:  GOTO   286 (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Função que decrementa as variáveis do cronometro regressivo 
+....................  */ 
+.................... #INT_TIMER1 
+.................... void timer_int_timer1() { 
+....................     
+....................    // Definindo o timer1 para contabilizar 500ms 
+....................    set_timer1(0x0BDB + get_timer1()); 
+*
+0044:  MOVF   0F,W
+0045:  MOVWF  7A
+0046:  MOVF   0E,W
+0047:  MOVWF  77
+0048:  MOVF   0F,W
+0049:  SUBWF  7A,W
+004A:  BTFSS  03.2
+004B:  GOTO   044
+004C:  MOVF   77,W
+004D:  ADDLW  DB
+004E:  MOVWF  39
+004F:  MOVF   7A,W
+0050:  MOVWF  3A
+0051:  MOVLW  0B
+0052:  BTFSC  03.0
+0053:  MOVLW  0C
+0054:  ADDWF  3A,F
+0055:  MOVF   3A,W
+0056:  MOVWF  0F
+0057:  MOVF   39,W
+0058:  MOVWF  0E
+....................     
+....................    // Invertendo a flag de contagem dos 500ms 
+....................    flag_timer_1sec = !flag_timer_1sec; 
+0059:  MOVLW  08
+005A:  XORWF  29,F
+....................     
+....................    // Decrementando 1 segundo 
+....................    if (flag_timer_start) { 
+005B:  BTFSS  29.4
+005C:  GOTO   07B
+....................       if (flag_timer_1sec) { 
+005D:  BTFSS  29.3
+005E:  GOTO   06A
+....................          if (sec_remains == 0) { 
+005F:  MOVF   2D,F
+0060:  BTFSS  03.2
+0061:  GOTO   069
+....................             if (min_remains > 0) { 
+0062:  MOVF   2C,F
+0063:  BTFSC  03.2
+0064:  GOTO   068
+....................                min_remains--; 
+0065:  DECF   2C,F
+....................                sec_remains = 59; 
+0066:  MOVLW  3B
+0067:  MOVWF  2D
+....................             } 
+....................          } 
+....................          else sec_remains--; 
+0068:  GOTO   06A
+0069:  DECF   2D,F
+....................       } 
+....................        
+....................       // Mostrando o Led dos segundos piscando 
+....................       output_bit(LED_SECS_PIN, flag_timer_1sec); 
+006A:  BTFSC  29.3
+006B:  GOTO   06E
+006C:  BCF    05.7
+006D:  GOTO   06F
+006E:  BSF    05.7
+....................        
+....................       // Tocando o buzzer no minuto final 
+....................       if (min_remains == 0) output_bit(BUZZER_PIN, flag_timer_1sec); 
+006F:  MOVF   2C,F
+0070:  BTFSS  03.2
+0071:  GOTO   078
+0072:  BTFSC  29.3
+0073:  GOTO   076
+0074:  BCF    05.2
+0075:  GOTO   077
+0076:  BSF    05.2
+....................       else output_low(BUZZER_PIN); 
+0077:  GOTO   079
+0078:  BCF    05.2
+....................        
+....................       // Habilitando a saida do relê 
+....................       output_high(RELE_PIN); 
+0079:  BSF    05.6
+....................    } 
+....................    else { 
+007A:  GOTO   07E
+....................       // Parando o Led e o Buzzer 
+....................       output_low(LED_SECS_PIN); 
+007B:  BCF    05.7
+....................       output_low(BUZZER_PIN); 
+007C:  BCF    05.2
+....................       output_low(RELE_PIN); 
+007D:  BCF    05.6
+....................    } 
+.................... } 
+....................  
+.................... #include "mem_eeprom.c" 
+.................... /** 
+....................  *  Configurações / Parametrizações 
+....................  */ 
+.................... #DEFINE MEM_CREDITS_ADDR  0x00 
+.................... #DEFINE MEM_REMAINS_ADDR  0x01 
+....................  
+007E:  BCF    0C.0
+007F:  BCF    0A.3
+0080:  GOTO   022
+.................... #ROM  0x2100={0x01, 0x00} 
+....................  
+.................... /** 
+....................  * Variáveis Globais 
+....................  */ 
+.................... int mem_min_remains = 0; 
+*
+027E:  CLRF   2F
+....................  
+....................  
+.................... /** 
+....................  * Função que carrega o tempo de cada crédito da EEPROM 
+....................  */ 
+.................... void mem_load_min_credits() { 
+....................    int min; 
+....................    min = read_eeprom(MEM_CREDITS_ADDR); 
+*
+00B3:  BSF    03.5
+00B4:  CLRF   1B
+00B5:  BCF    1C.7
+00B6:  BSF    1C.0
+00B7:  MOVF   1A,W
+00B8:  BCF    03.5
+00B9:  MOVWF  33
+....................     
+....................    if (min > 99) min = 0; 
+00BA:  MOVF   33,W
+00BB:  SUBLW  63
+00BC:  BTFSS  03.0
+00BD:  CLRF   33
+....................    min_credits = min; 
+00BE:  MOVF   33,W
+00BF:  MOVWF  2E
+.................... } 
+....................  
+....................  
+.................... /** 
+....................  * Função que armazena o tempo de cada crédito na EEPROM 
+....................  */ 
+.................... void mem_save_min_credits() { 
+....................    write_eeprom(MEM_CREDITS_ADDR, min_credits); 
+*
+01E7:  BSF    03.5
+01E8:  CLRF   1B
+01E9:  BCF    03.5
+01EA:  MOVF   2E,W
+01EB:  BSF    03.5
+01EC:  MOVWF  1A
+01ED:  BSF    1C.2
+01EE:  BCF    03.5
+01EF:  MOVF   0B,W
+01F0:  MOVWF  77
+01F1:  BCF    0B.7
+01F2:  BSF    03.5
+01F3:  MOVLW  55
+01F4:  MOVWF  1D
+01F5:  MOVLW  AA
+01F6:  MOVWF  1D
+01F7:  BSF    1C.1
+01F8:  BTFSC  1C.1
+01F9:  GOTO   1F8
+01FA:  BCF    1C.2
+01FB:  MOVF   77,W
+01FC:  BCF    03.5
+01FD:  IORWF  0B,F
+.................... } 
+....................  
+....................  
+.................... /** 
+....................  * Função que carrega o tempo restante da EEPROM 
+....................  */ 
+.................... void mem_load_min_remains() { 
+....................    mem_min_remains = read_eeprom(MEM_REMAINS_ADDR); 
+*
+00C0:  MOVLW  01
+00C1:  BSF    03.5
+00C2:  MOVWF  1B
+00C3:  BCF    1C.7
+00C4:  BSF    1C.0
+00C5:  MOVF   1A,W
+00C6:  BCF    03.5
+00C7:  MOVWF  2F
+....................    timer_set_min_remains( mem_min_remains ); 
+00C8:  MOVF   2F,W
+00C9:  MOVWF  34
+00CA:  CALL   0A9
+....................    if (mem_min_remains != 0) sec_remains = 59; 
+00CB:  MOVF   2F,F
+00CC:  BTFSC  03.2
+00CD:  GOTO   0D0
+00CE:  MOVLW  3B
+00CF:  MOVWF  2D
+.................... } 
+....................  
+....................  
+.................... /** 
+....................  * Função que armazena o tempo restante na EEPROM 
+....................  */ 
+.................... void mem_save_min_remains() { 
+....................    if (mem_min_remains != min_remains) { 
+*
+024C:  MOVF   2C,W
+024D:  SUBWF  2F,W
+024E:  BTFSC  03.2
+024F:  GOTO   26A
+....................       mem_min_remains = min_remains; 
+0250:  MOVF   2C,W
+0251:  MOVWF  2F
+....................       write_eeprom(MEM_REMAINS_ADDR, mem_min_remains); 
+0252:  MOVLW  01
+0253:  BSF    03.5
+0254:  MOVWF  1B
+0255:  BCF    03.5
+0256:  MOVF   2F,W
+0257:  BSF    03.5
+0258:  MOVWF  1A
+0259:  BSF    1C.2
+025A:  BCF    03.5
+025B:  MOVF   0B,W
+025C:  MOVWF  77
+025D:  BCF    0B.7
+025E:  BSF    03.5
+025F:  MOVLW  55
+0260:  MOVWF  1D
+0261:  MOVLW  AA
+0262:  MOVWF  1D
+0263:  BSF    1C.1
+0264:  BTFSC  1C.1
+0265:  GOTO   264
+0266:  BCF    1C.2
+0267:  MOVF   77,W
+0268:  BCF    03.5
+0269:  IORWF  0B,F
+....................    } 
+.................... } 
+026A:  GOTO   294 (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Função que inicializa os tempos de minutos restantes e créditos da EEPROM 
+....................  */ 
+.................... void mem_init() { 
+....................    mem_load_min_credits(); 
+....................    mem_load_min_remains(); 
+.................... } 
+*
+00D0:  GOTO   287 (RETURN)
+....................  
+.................... #include "controlador.c" 
+.................... /** 
+....................  *  Configurações / Parametrizações 
+....................  */ 
+.................... #DEFINE BT_SETUP_PIN  PIN_A3 
+.................... #DEFINE BT_START_PIN  PIN_A4 
+....................  
+.................... /** 
+....................  * Variáveis Globais 
+....................  */ 
+.................... int setup_mode = 0; 
+*
+027F:  CLRF   30
+....................  
+....................  
+.................... /** 
+....................  * Função que inicializa os botões 
+....................  */ 
+.................... void bt_init() { 
+....................    output_float(BT_START_PIN); 
+*
+00D1:  BSF    03.5
+00D2:  BSF    05.4
+....................    output_float(BT_SETUP_PIN); 
+00D3:  BSF    05.3
+.................... } 
+00D4:  BCF    03.5
+00D5:  GOTO   288 (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Função que controla o botão START 
+....................  */ 
+.................... void bt_start() { 
+....................    static boolean bt_press = false; 
+*
+0280:  BCF    29.5
+....................     
+....................    // Botão pressionado 
+....................    if (!input(BT_START_PIN)) { 
+*
+0130:  BTFSC  05.4
+0131:  GOTO   137
+....................       bt_press = true; 
+0132:  BSF    29.5
+....................       disp_delay_10ms(2); 
+0133:  MOVLW  02
+0134:  MOVWF  34
+0135:  CALL   0F8
+....................    } 
+....................    else { 
+0136:  GOTO   148
+....................        
+....................       // Botão Liberado 
+....................       if (bt_press) { 
+0137:  BTFSS  29.5
+0138:  GOTO   148
+....................          bt_press = false; 
+0139:  BCF    29.5
+....................           
+....................          // Incrementando o tempo restante 
+....................          timer_set_min_remains(min_remains + min_credits); 
+013A:  MOVF   2E,W
+013B:  ADDWF  2C,W
+013C:  MOVWF  33
+013D:  MOVWF  34
+013E:  CALL   0A9
+....................           
+....................          // Adicionando 1 segundo a contagem do tempo para a exibição correta do tempo restante 
+....................          if (!flag_timer_start && min_remains != 0 && sec_remains == 0) sec_remains++; 
+013F:  BTFSC  29.4
+0140:  GOTO   147
+0141:  MOVF   2C,F
+0142:  BTFSC  03.2
+0143:  GOTO   147
+0144:  MOVF   2D,F
+0145:  BTFSC  03.2
+0146:  INCF   2D,F
+....................           
+....................          // Iniciando a contagem do tempo 
+....................          flag_timer_start = true; 
+0147:  BSF    29.4
+....................       } 
+....................    } 
+.................... } 
+0148:  GOTO   28D (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Função que controla o botão SETUP 
+....................  */ 
+.................... void bt_setup() { 
+....................    static boolean bt_press = false; 
+*
+0281:  BCF    29.6
+....................     
+....................    // Botão pressionado 
+....................    if (!input(BT_SETUP_PIN)) { 
+*
+0149:  BTFSC  05.3
+014A:  GOTO   150
+....................       bt_press = true; 
+014B:  BSF    29.6
+....................       disp_delay_10ms(2); 
+014C:  MOVLW  02
+014D:  MOVWF  34
+014E:  CALL   0F8
+....................    } 
+....................    else { 
+014F:  GOTO   154
+....................        
+....................       // Botão Liberado 
+....................       if (bt_press) { 
+0150:  BTFSS  29.6
+0151:  GOTO   154
+....................          bt_press = false; 
+0152:  BCF    29.6
+....................           
+....................          // Habilitando o modo Setup e modificando os Steps 
+....................          setup_mode++; 
+0153:  INCF   30,F
+....................       } 
+....................    } 
+.................... } 
+0154:  GOTO   28E (RETURN)
+....................  
+....................  
+.................... /** 
+....................  * Função que controla o modo de Configuração 
+....................  */ 
+.................... void setup() { 
+....................    static int uni = 0, dez = 0; 
+*
+0282:  CLRF   31
+0283:  CLRF   32
+....................    boolean flag_timer_temp; 
+....................     
+....................    switch (setup_mode) { 
+*
+016A:  MOVF   30,W
+016B:  XORLW  01
+016C:  BTFSC  03.2
+016D:  GOTO   175
+016E:  XORLW  03
+016F:  BTFSC  03.2
+0170:  GOTO   18A
+0171:  XORLW  01
+0172:  BTFSC  03.2
+0173:  GOTO   1A4
+0174:  GOTO   1BB
+....................        
+....................       // Exibindo o valor do crédito por minuto piscando no display 
+....................       case 1: 
+....................           
+....................          // Lendo os minutos configurados 
+....................          dez = min_credits / 10; 
+0175:  MOVF   2E,W
+0176:  MOVWF  36
+0177:  MOVLW  0A
+0178:  MOVWF  37
+0179:  CALL   155
+017A:  MOVF   78,W
+017B:  MOVWF  32
+....................          uni = min_credits % 10; 
+017C:  MOVF   2E,W
+017D:  MOVWF  36
+017E:  MOVLW  0A
+017F:  MOVWF  37
+0180:  CALL   155
+0181:  MOVF   77,W
+0182:  MOVWF  31
+....................           
+....................          // Exibindo os valores piscando 
+....................          flag_disp1 = flag_timer_1sec; 
+0183:  BCF    29.0
+0184:  BTFSC  29.3
+0185:  BSF    29.0
+....................          flag_disp2 = flag_disp1; 
+0186:  BCF    29.1
+0187:  BTFSC  29.0
+0188:  BSF    29.1
+....................          break; 
+0189:  GOTO   20C
+....................        
+....................       // Exibindo as dezenas piscando e incrementando a cada piscada 
+....................       case 2 : 
+....................           
+....................          // Exibindo as dezenas piscando e incrementando 
+....................          flag_disp1 = true; 
+018A:  BSF    29.0
+....................          flag_timer_temp = flag_timer_1sec; 
+018B:  BCF    33.0
+018C:  BTFSC  29.3
+018D:  BSF    33.0
+....................          if (!flag_disp2 && flag_disp2 != flag_timer_temp) { 
+018E:  BTFSC  29.1
+018F:  GOTO   1A0
+0190:  CLRF   77
+0191:  BTFSC  33.0
+0192:  BSF    77.1
+0193:  MOVF   29,W
+0194:  XORWF  77,W
+0195:  ANDLW  02
+0196:  BTFSC  03.2
+0197:  GOTO   1A0
+....................             dez++; 
+0198:  INCF   32,F
+....................             dez = dez % 10; 
+0199:  MOVF   32,W
+019A:  MOVWF  36
+019B:  MOVLW  0A
+019C:  MOVWF  37
+019D:  CALL   155
+019E:  MOVF   77,W
+019F:  MOVWF  32
+....................          } 
+....................          flag_disp2 = flag_timer_temp; 
+01A0:  BCF    29.1
+01A1:  BTFSC  33.0
+01A2:  BSF    29.1
+....................          break; 
+01A3:  GOTO   20C
+....................        
+....................       // Exibindo as unidades piscando e incrementando a cada piscada 
+....................       case 3 : 
+....................           
+....................          // Exibindo as unidades piscando e incrementando 
+....................          flag_disp2 = true; 
+01A4:  BSF    29.1
+....................          flag_timer_temp = flag_timer_1sec; 
+01A5:  BCF    33.0
+01A6:  BTFSC  29.3
+01A7:  BSF    33.0
+....................          if (!flag_disp1 && flag_disp1 != flag_timer_temp) { 
+01A8:  BTFSC  29.0
+01A9:  GOTO   1B7
+01AA:  MOVF   29,W
+01AB:  XORWF  33,W
+01AC:  ANDLW  01
+01AD:  BTFSC  03.2
+01AE:  GOTO   1B7
+....................             uni++; 
+01AF:  INCF   31,F
+....................             uni = uni % 10; 
+01B0:  MOVF   31,W
+01B1:  MOVWF  36
+01B2:  MOVLW  0A
+01B3:  MOVWF  37
+01B4:  CALL   155
+01B5:  MOVF   77,W
+01B6:  MOVWF  31
+....................          } 
+....................          flag_disp1 = flag_timer_temp; 
+01B7:  BCF    29.0
+01B8:  BTFSC  33.0
+01B9:  BSF    29.0
+....................          break; 
+01BA:  GOTO   20C
+....................        
+....................       // Armazenando na memória EEPROM 
+....................       default : 
+....................           
+....................          // Ativando as unidades e dezenas 
+....................          disp_turn_on(); 
+01BB:  CALL   08E
+....................           
+....................          // Armazenando o valor escolhido 
+....................          min_credits = (dez * 10) + uni; 
+01BC:  MOVF   32,W
+01BD:  MOVWF  34
+01BE:  MOVLW  0A
+01BF:  MOVWF  35
+*
+01E4:  MOVF   31,W
+01E5:  ADDWF  78,W
+01E6:  MOVWF  2E
+....................          mem_save_min_credits(); 
+....................          setup_mode = 0; 
+*
+01FE:  CLRF   30
+....................           
+....................          // Exibindo o resultado final no display 
+....................          disp_output(uni, dez); 
+01FF:  MOVF   31,W
+0200:  MOVWF  36
+0201:  MOVF   32,W
+0202:  MOVWF  37
+0203:  CALL   081
+....................          disp_delay_10ms(100); 
+0204:  MOVLW  64
+0205:  MOVWF  34
+0206:  CALL   0F8
+....................          disp_turn_off(); 
+0207:  CALL   119
+....................          disp_delay_10ms(50); 
+0208:  MOVLW  32
+0209:  MOVWF  34
+020A:  CALL   0F8
+....................          return; 
+020B:  GOTO   211
+....................    } 
+....................     
+....................    // Exibindo os minutos de cada crédito 
+....................    disp_output(uni, dez); 
+020C:  MOVF   31,W
+020D:  MOVWF  36
+020E:  MOVF   32,W
+020F:  MOVWF  37
+0210:  CALL   081
+.................... } 
+0211:  GOTO   292 (RETURN)
+....................  
+....................  
+....................  
+.................... /** 
+....................  * Função principal 
+....................  */ 
+.................... void main() { 
+*
+026B:  CLRF   04
+026C:  BCF    03.7
+026D:  MOVLW  1F
+026E:  ANDWF  03,F
+026F:  BSF    03.5
+0270:  BSF    0E.3
+0271:  MOVLW  07
+0272:  BCF    03.5
+0273:  MOVWF  1F
+....................     
+....................    // Inicializando o display e o timer 
+....................    disp_init(); 
+*
+0284:  GOTO   091
+....................    timer_init(); 
+0285:  GOTO   09D
+....................    mem_init(); 
+0286:  GOTO   0B3
+....................    bt_init(); 
+0287:  GOTO   0D1
+....................     
+....................    // Habilitando todas as interrupções 
+....................    enable_interrupts(GLOBAL); 
+0288:  MOVLW  C0
+0289:  IORWF  0B,F
+....................     
+....................    // Exibindo o banner de testes no Display 
+....................    disp_banner(); 
+028A:  GOTO   11C
+....................     
+....................    // Iniciando a contagem do tempo 
+....................    flag_timer_start = true; 
+028B:  BSF    29.4
+....................     
+....................    // Loop infinito 
+....................    for (;;) { 
+....................        
+....................       // Monitorando as ações dos botões Start / Coint / Setup 
+....................       bt_start(); 
+028C:  GOTO   130
+....................       bt_setup(); 
+028D:  GOTO   149
+....................        
+....................       // Modo de Setup / Modo Cronometro Regressivo 
+....................       if (setup_mode != 0) setup(); 
+028E:  MOVF   30,F
+028F:  BTFSS  03.2
+0290:  GOTO   16A
+....................       else timer_display(); 
+0291:  GOTO   234
+....................        
+....................       // Atualizando o display 
+....................       disp_refresh(); 
+0292:  CALL   0D6
+....................        
+....................       // Salvando os minutos a cada decrecimo 
+....................       mem_save_min_remains(); 
+0293:  GOTO   24C
+....................    } 
+0294:  GOTO   28C
+.................... } 
+0295:  SLEEP
+
+Configuration Fuses:
+   Word  1: 3F30   NOWDT PUT NOPROTECT NOBROWNOUT MCLR NOLVP INTRC_IO NOCPD
+
+ROM data:
+002100: 0001 0000 

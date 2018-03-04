@@ -1,0 +1,62 @@
+[PROJECT]
+Target=main.hex
+Development_Mode=
+Processor_Text=PIC16F628A
+ToolSuite=CCS
+Processor=0x628A
+[D:\Projetos_CCS\Timer\main]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+[mru-list]
+1=main.c
+[Windows]
+0=0000 %S 0 0 796 451 3 0
+[Opened Files]
+1=main.c
+2=timer_1sec.c
+3=mem_eeprom.c
+4=display_led.c
+5=controlador.c
+6=
+7=
+[Target Data]
+OptionString=+FM
+FileList=d:\projetos_ccs\timer\main.c
+BuildTool=C-COMPILER
+AdditionalOptionString=
+BuildRequired=1
+[Directories]
+Include=C:\Arquivos de programas\PICC\devices\;C:\Arquivos de programas\PICC\drivers\;
+Library=
+LinkerScript=
+[defines]
+enabled=0
+D1=
+V1=
+[fileformats]
+forcecoff=0
+debug=4
+error=2
+object=0
+list=0
+scratch=0
+sta=1
+tre=1
+allerrors=1
+allwarnings=1
+stayupne=3
+stayupoe=0
+[main.c]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+[Units]
+Count=1
+1=main.c (main)

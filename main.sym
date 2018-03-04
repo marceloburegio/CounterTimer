@@ -1,0 +1,120 @@
+004-005 @READ_PROGRAM_MEMORY8.P1
+015     CCP_1_LOW
+015-016 CCP_1
+016     CCP_1_HIGH
+01F.6   C1OUT
+01F.7   C2OUT
+020     @INTERRUPT_AREA
+021     @INTERRUPT_AREA
+022     @INTERRUPT_AREA
+023     @INTERRUPT_AREA
+024     @INTERRUPT_AREA
+025     @INTERRUPT_AREA
+026     @INTERRUPT_AREA
+027     @INTERRUPT_AREA
+028     @INTERRUPT_AREA
+029.0   flag_disp1
+029.1   flag_disp2
+029.2   disp_refresh.flag_disp
+029.3   flag_timer_1sec
+029.4   flag_timer_start
+029.5   bt_start.bt_press
+029.6   bt_setup.bt_press
+02A     disp1_byte
+02B     disp2_byte
+02C     min_remains
+02D     sec_remains
+02E     min_credits
+02F     mem_min_remains
+030     setup_mode
+031     setup.uni
+032     setup.dez
+033     disp_banner.i
+033.0   setup.flag_timer_temp
+033     mem_load_min_credits.min
+033     disp_time.min
+033     bt_start.@SCRATCH1
+034     disp_delay_10ms.factor
+034     timer_set_min_remains.min
+034     @MUL88.P1
+034     disp_time.uni
+034     setup.@SCRATCH1
+035     disp_time.dez
+035     disp_delay_10ms.i
+035     @MUL88.P1
+035.0   timer_set_min_remains.flag_temp
+036     @DIV88.P1
+036     disp_output.uni
+036     disp_refresh.@SCRATCH1
+037     @DIV88.P1
+037     disp_output.dez
+038     @DIV88.@SCRATCH1
+039     timer_int_timer1.@SCRATCH1
+03A     timer_int_timer1.@SCRATCH2
+077     @SCRATCH
+078     @SCRATCH
+078     _RETURN_
+079     @SCRATCH
+07A     @SCRATCH
+07B     @SCRATCH
+10D-10E @READ_PROGRAM_MEMORY8.P1
+
+ROM Allocation:
+008E  disp_turn_on
+0119  disp_turn_off
+0081  disp_output
+0091  disp_init
+0035  led_map
+00D6  disp_refresh
+00F8  disp_delay_10ms
+011C  disp_banner
+0212  disp_time
+0155  @DIV88
+00A9  timer_set_min_remains
+0234  timer_display
+009D  timer_init
+0044  timer_int_timer1
+00B3  mem_load_min_credits
+01E7  mem_save_min_credits
+00C0  mem_load_min_remains
+024C  mem_save_min_remains
+00B3  mem_init
+00D1  bt_init
+0130  bt_start
+0149  bt_setup
+016A  setup
+01C0  @MUL88
+026B  MAIN
+026B  @cinit
+
+Project Directory:
+    d:\projetos_ccs\timer\
+
+Project Files:
+    main.c
+    C:\Arquivos de programas\PICC\devices\16F628A.h
+    display_led.c
+    timer_1sec.c
+    mem_eeprom.c
+    controlador.c
+
+Units:
+    d:\projetos_ccs\timer\main.c (main)
+
+Compiler Settings:
+    Processor:      PIC16F628A
+    Pointer Size:   16
+    Opt Level:      9
+    Short,Int,Long: UNSIGNED: 1,8,16
+    Float,Double:   32,32
+
+Output Files:
+    Errors:      main.err
+    Ext Symbols: main.esym
+    INHX8:       main.hex
+    Symbols:     main.sym
+    List:        main.lst
+    Debug/COFF:  main.cof
+    Project:     main.PJT
+    Call Tree:   main.tre
+    Statistics:  main.sta
